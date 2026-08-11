@@ -38,12 +38,15 @@ Given a text file (or stdin), cleantext:
 
 | Category | Why |
 | --- | --- |
-| Statistical / generation watermarks (e.g. SynthID-style token bias) | The signal *is* word choice; only paraphrase/rewrite degrades it |
-| Stylometric “sounds like AI” fingerprints | Not embedded characters |
-| C2PA / signed file provenance | Lives in binary file metadata, not plain text |
+| Statistical / generation watermarks (Kirchenbauer, SynthID-Text, Claude-class) | Signal is token choice; only substantial rewrite degrades it |
+| Imperceptible media watermarks (SynthID image/video/audio) | Not plain text |
+| C2PA / EXIF / signed provenance | File metadata, not the string |
+| Visible AI labels / EU disclosure icons | Human-facing UI, not Unicode stego |
+| Stylometric “sounds like AI” classifiers | Not embedded characters |
 
-> **Honest scope:** Excellent against format-based Unicode stego. Not a claim of “undetectable human text” or defeat of statistical detectors.
+> **Honest scope:** Excellent against format-based Unicode stego. Not a claim of “undetectable human text” or defeat of statistical / multi-layer lab marking.
 
+For the full catalog of methods (regulatory context, text, media, metadata, labels), see **[METHODS.md](METHODS.md)**.
 ---
 
 ## Install
@@ -142,11 +145,11 @@ cleantext/
 ├── cleantext.py      # CLI + library (single module)
 ├── pyproject.toml    # packaging, entry point, tool config
 ├── README.md         # this file
+├── METHODS.md        # how text watermarks work (by method family)
 ├── LICENSE
 ├── examples/         # sample dirty/clean text
 └── tests/            # unit tests
 ```
-
 ---
 
 ## Development
@@ -168,20 +171,25 @@ No runtime third-party packages. Optional `pytest` is only for the `dev` extra.
 
 ## Background (short)
 
-People often mean three different things by “AI watermark”:
+Providers often use a **multi-layered** stack for EU AI Act–style transparency (machine-readable marking of synthetic content): signed metadata (C2PA), imperceptible watermarks, and sometimes visible labels. Free-form text usually depends on a **generation-time statistical watermark** because it cannot carry file metadata. People still also use or encounter **post-hoc Unicode stego** (zero-width characters, homoglyphs, etc.).
 
-1. **Unicode / format stego** — invisible or lookalike characters in the string (what this tool targets)
-2. **Statistical generation marks** — biased next-token sampling during model decode (needs rewrite)
-3. **Provenance metadata** — C2PA-style signatures on files (out of scope for plain text)
+| What people call a “watermark” | Role | cleantext? |
+| --- | --- | --- |
+| Unicode / format stego | Invisible or lookalike characters in the string | **Yes** |
+| Statistical LLM marks | Biased next-token sampling (Kirchenbauer, SynthID-Text, Claude-class) | No — rewrite |
+| Media signal marks | SynthID-style image/video/audio | No |
+| C2PA / EXIF provenance | Signed or simple file metadata | No |
+| Visible labels / icons | Human disclosure | No |
+| Stylometry | Classifier “AI-like” style | No |
 
-Common format-based schemes in the wild and research literature include zero-width payloads (StegCloak, AITSteg), alternate whitespace (Innamark, UniSpaCh), homoglyph substitution (LookALikes, Rizzo), and trailing-space encoding (SNOW).
+**Claude / Anthropic (context as of Aug 2026):** imperceptible text watermark at the model level plus C2PA on supported files. Exact text algorithm not public; Unicode-layer marks are cleaned here, statistical marks are not.
 
-**Claude / Anthropic (context as of Aug 2026):** public docs describe an imperceptible text watermark for newer models plus C2PA on files. Exact detection mechanics were still “forthcoming.” Unicode-layer marks are cleaned here; statistical marks are not.
+### Full methods catalog
 
-For a longer capability statement:
+**→ [METHODS.md](METHODS.md)** — EU/Code of Practice context; statistical text schemes; C2PA; media SynthID; visible labels; Unicode stego detail; detection reality; workflow
 
 ```bash
-cleantext --limitations
+cleantext --limitations   # short in-CLI capability statement
 ```
 
 ---
