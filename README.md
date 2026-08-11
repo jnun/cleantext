@@ -38,7 +38,7 @@ Given a text file (or stdin), cleantext:
 
 | Category | Why |
 | --- | --- |
-| Statistical / generation watermarks (Kirchenbauer, SynthID-Text, Claude-class) | Signal is token choice; only substantial rewrite degrades it |
+| Generation-time text marks (Kirchenbauer, SynthID-Text, Claude model-level) | Signal woven in during decoding; only substantial rewrite degrades it |
 | Imperceptible media watermarks (SynthID image/video/audio) | Not plain text |
 | C2PA / EXIF / signed provenance | File metadata, not the string |
 | Visible AI labels / EU disclosure icons | Human-facing UI, not Unicode stego |
@@ -171,22 +171,37 @@ No runtime third-party packages. Optional `pytest` is only for the `dev` extra.
 
 ## Background (short)
 
-Providers often use a **multi-layered** stack for EU AI Act–style transparency (machine-readable marking of synthetic content): signed metadata (C2PA), imperceptible watermarks, and sometimes visible labels. Free-form text usually depends on a **generation-time statistical watermark** because it cannot carry file metadata. People still also use or encounter **post-hoc Unicode stego** (zero-width characters, homoglyphs, etc.).
+Providers often use a **multi-layered** stack for EU AI Act–style transparency (machine-readable marking of synthetic content): signed metadata (C2PA), imperceptible watermarks, and sometimes visible labels. Free-form text usually depends on a **generation-time watermark** because it cannot carry file metadata. People still also use or encounter **post-hoc Unicode stego** (zero-width characters, homoglyphs, etc.).
 
 | What people call a “watermark” | Role | cleantext? |
 | --- | --- | --- |
 | Unicode / format stego | Invisible or lookalike characters in the string | **Yes** |
-| Statistical LLM marks | Biased next-token sampling (Kirchenbauer, SynthID-Text, Claude-class) | No — rewrite |
+| Generation-time text marks (Kirchenbauer, SynthID-Text, Claude-class) | Signal woven into the text during decoding / model output | No — rewrite |
 | Media signal marks | SynthID-style image/video/audio | No |
 | C2PA / EXIF provenance | Signed or simple file metadata | No |
 | Visible labels / icons | Human disclosure | No |
 | Stylometry | Classifier “AI-like” style | No |
 
-**Claude / Anthropic (context as of Aug 2026):** imperceptible text watermark at the model level plus C2PA on supported files. Exact text algorithm not public; Unicode-layer marks are cleaned here, statistical marks are not.
+### Claude / Anthropic (as of Aug 2026)
+
+Anthropic documents machine-readable marking under the EU AI Act Article 50(2) Code of Practice on Transparency of AI-Generated Content. Public description:
+
+| Layer | What Anthropic says | cleantext? |
+| --- | --- | --- |
+| **Embedded text watermark** | Imperceptible mark **woven into the text at the model level**; no visible change to meaning/quality; travels with copy-paste; may persist through some editing | **No** — not a character scrub |
+| **Signed provenance (C2PA)** | On supported generated files (e.g. SVG, PNG, JPG) | **No** — file metadata |
+
+**Coverage (per Anthropic help center):** models launched **on or after 2 Aug 2026** support marking at launch; pre-date models are in a transition period. Marks apply across Claude products (API/Platform, Claude, Claude Code, Claude Cowork, Claude Tag) and via cloud partners, **worldwide**. Detection mechanisms and exact encoding details are **forthcoming** — treat the official text mark as a **generation-time / Claude-class** signal, not as documented Unicode stego.
+
+**What cleantext still helps with on Claude output:** any **Unicode-layer** artifacts that appear in plain text (zero-width/invisible codepoints, alternate spaces, homoglyphs, special apostrophes such as modifier-letter forms sometimes seen in tooling, trailing whitespace payloads). Those are separate from the official model-level watermark.
+
+**What degrades the official Claude text mark (per Anthropic’s own limitations):** heavy edit / paraphrase / translation / mixing into other writing; very short passages; models that did not yet support marking; unsupported surfaces. That is rewrite territory — not something a scrubber can promise.
+
+Source: [How Claude marks AI-generated content](https://support.claude.com/en/articles/16266773-how-claude-marks-ai-generated-content) (Anthropic Help Center).
 
 ### Full methods catalog
 
-**→ [METHODS.md](METHODS.md)** — EU/Code of Practice context; statistical text schemes; C2PA; media SynthID; visible labels; Unicode stego detail; detection reality; workflow
+**→ [METHODS.md](METHODS.md)** — EU/Code of Practice context; statistical text schemes; Claude marking detail; C2PA; media SynthID; visible labels; Unicode stego detail; detection reality; workflow
 
 ```bash
 cleantext --limitations   # short in-CLI capability statement
@@ -195,6 +210,11 @@ cleantext --limitations   # short in-CLI capability statement
 ---
 
 ## Changelog
+
+### Docs (2026-08)
+
+- Aligned Claude / Anthropic notes with the public Help Center article on AI content marking (model-level text watermark + C2PA; detection details forthcoming)
+- Clarified that cleantext covers Unicode-layer artifacts only; official Claude embedded text marks need rewrite, not char scrub
 
 ### 0.1.0
 

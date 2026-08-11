@@ -8,8 +8,9 @@ Covers the format-based / steganographic marks commonly found in AI-generated or
 AI-processed text: zero-width characters, variation selectors, alternate spaces,
 homoglyph substitution, trailing-whitespace payload, and related control marks.
 
-Does NOT remove statistical / generation-time watermarks (e.g. SynthID-style token
-bias). Those require paraphrasing or heavy rewriting — see --limitations.
+Does NOT remove generation-time watermarks (e.g. SynthID-style token bias, Claude
+model-level text marks) or C2PA file metadata. Those require paraphrasing / rewrite
+or separate metadata tools — see --limitations.
 
 License: MIT (see LICENSE). Copyright remains with the originator.
 
@@ -639,23 +640,35 @@ What this tool removes (Unicode / format-layer):
   • Trailing whitespace payloads (SNOW-style)
   • Optional NFKC Unicode normalization
 
-What this tool cannot remove (generation-layer / statistical):
+What this tool cannot remove (generation-layer / metadata):
   • SynthID-style token-sampling watermarks (Google and similar research methods)
   • Cryptographic green/red list biases baked into next-token choice
+  • Claude model-level embedded text watermark (see below)
   • Stylometric "fingerprints" from model writing habits
   • C2PA / signed provenance metadata on files (not present in plain text)
 
 Anthropic (Claude) note (as of Aug 2026):
-  Official docs describe an "imperceptible watermark woven into the text" for
-  models launched on/after 2026-08-02, plus C2PA metadata on files. Technical
-  detection details are "forthcoming". If Claude uses Unicode-layer marks, this
-  tool strips them. If Claude uses statistical token bias, only paraphrasing or
-  substantial rewriting will degrade the signal — and heavy editing already
-  weakens detection per Anthropic's own limitations.
+  Help Center: "How Claude marks AI-generated content"
+  https://support.claude.com/en/articles/16266773-how-claude-marks-ai-generated-content
+
+  Two official layers:
+    1) Imperceptible watermark woven into text at the model level
+       (models launched on/after 2026-08-02; older models in transition).
+       Travels with copy-paste; may survive some editing. Encoding and
+       public detection details are "forthcoming" — treat as generation-time
+       / Claude-class signal, not documented Unicode stego.
+    2) C2PA signed provenance on supported files (e.g. SVG, PNG, JPG).
+
+  cleantext strips Unicode-layer artifacts if they appear in the string
+  (invisible codepoints, alternate spaces, homoglyphs, special apostrophes,
+  trailing-WS payloads, …). It does not remove the official model-level
+  text watermark. Heavy rewrite / paraphrase (different model or human),
+  short text, or pre-marking models weaken that signal per Anthropic.
 
 Honest expectation:
   Unicode cleanup is deterministic and highly effective against format-based
-  stego. Statistical watermarks need content change (paraphrase), not char scrubbing.
+  stego. Generation-time watermarks need content change (paraphrase), not
+  character scrubbing.
 """.strip()
 
 

@@ -68,10 +68,23 @@ Research and prototypes aiming at better quality–robustness trade-offs or dist
 
 ### 1.4 Company implementations (e.g. Anthropic Claude)
 
-- Anthropic weaves an **imperceptible** watermark into Claude-generated text at the **model level**.
-- Survives copy-paste; **may persist through some editing**.
-- Exact algorithm details are **not public**; treat as this statistical class.
-- A positive detection typically means content *may have been processed* by that system (including proofreading or summarizing human text) — not a cryptographic proof of sole AI authorship. **Absence of a mark proves nothing.**
+Public commitments (Anthropic Help Center, *How Claude marks AI-generated content*, mid-2026) under the EU AI Act Article 50(2) Code of Practice:
+
+| Topic | Public detail |
+| --- | --- |
+| **Text mark** | Imperceptible watermark **woven into the text itself** at the **model level** — no claimed change to meaning, quality, or readability |
+| **Transport** | Travels with **copy-paste**; **may persist through some editing** |
+| **Files** | **C2PA** signed provenance metadata on supported generated types (e.g. SVG, PNG, JPG) |
+| **When** | Models launched **on/after 2 Aug 2026** mark from day one; older models are in a **transition** period |
+| **Where** | Claude Platform (API), Claude, Claude Code, Claude Cowork, Claude Tag; also when models are accessed via AWS / Google Cloud / Microsoft Foundry (metadata support can vary by platform) |
+| **Regions** | Marks apply **worldwide**, not EU-only |
+| **Detection** | Anthropic will support third-party detection; **technical details forthcoming** — exact encoding is **not public** |
+
+**How to classify for tooling:** treat the official Claude text mark as a **generation-time / Claude-class** signal in the same family as sampling-based schemes (Kirchenbauer, SynthID-Text, peers). Anthropic does **not** document a Unicode zero-width or homoglyph alphabet for this mark. **`cleantext` does not remove it.**
+
+Separately, plain-text Claude (or Claude Code) output may still contain **Unicode-layer** quirks (invisible codepoints, alternate spaces, special apostrophes, etc.) from tooling, paste paths, or third-party stego. Those **are** in cleantext’s scope when they appear as characters in the string.
+
+**Detection semantics (Anthropic):** a positive mark means content *may have been processed* by Claude (including proofreading, translation, summarization, or file conversion of human-origin material) — **not** a cryptographic proof of sole AI authorship. **Absence of a mark proves nothing** (pre-marking models, heavy edit, short text, stripped file metadata, unsupported surface).
 
 ### Strengths and limitations (text statistical marks)
 
@@ -255,7 +268,7 @@ For content you control:
 | Trailing WS payloads | Strip (default) |
 | Fancy punctuation / special apostrophes | Normalize to ASCII (default) |
 | NFKC | Optional (default on) |
-| Kirchenbauer / SynthID-Text / Claude-class sampling | **Not handled** |
+| Kirchenbauer / SynthID-Text / Claude model-level text watermark | **Not handled** (rewrite) |
 | C2PA / EXIF / media SynthID | **Not handled** |
 | Visible labels, stylometry, fingerprints | **Not handled** |
 
@@ -270,10 +283,11 @@ cleantext --limitations
 ## References (starting points)
 
 - EU AI Act transparency obligations for generative systems (Article 50 and implementing / Code of Practice materials)
+- Anthropic, [How Claude marks AI-generated content](https://support.claude.com/en/articles/16266773-how-claude-marks-ai-generated-content) (Help Center; model-level text watermark + C2PA; detection details forthcoming)
 - Kirchenbauer et al., *A Watermark for Large Language Models*, [arXiv:2301.10226](https://arxiv.org/abs/2301.10226)
 - Google DeepMind materials on **SynthID** / **SynthID-Text**
 - C2PA specifications for content credentials / manifests
 - Unicode Consortium, [UTR #39 Unicode Security Mechanisms](https://unicode.org/reports/tr39/) (confusables)
 - Historical / academic text stego: StegCloak, SNOW, Innamark, UniSpaCh, LookALikes, Rizzo, AITSteg, …
 
-This document is informational. Production systems, detectors, and guidance change; treat details as **time-sensitive** (context as of ~2026).
+This document is informational. Production systems, detectors, and guidance change; treat details as **time-sensitive** (context as of Aug 2026).
