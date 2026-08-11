@@ -1,0 +1,75 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cleantext"
+version = "0.1.0"
+description = "Strip Unicode-layer watermarks and fingerprinting artifacts from text"
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+requires-python = ">=3.10"
+authors = [
+    { name = "Jason Nunnelley" },
+]
+maintainers = [
+    { name = "Jason Nunnelley" },
+]
+keywords = [
+    "unicode",
+    "watermark",
+    "fingerprint",
+    "zero-width",
+    "homoglyph",
+    "steganography",
+    "text-cleaning",
+    "ai-text",
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Intended Audience :: End Users/Desktop",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Text Processing",
+    "Topic :: Utilities",
+    "Typing :: Typed",
+]
+# Stdlib only — no runtime dependencies.
+dependencies = []
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+]
+
+[project.scripts]
+cleantext = "cleantext:main"
+
+[project.urls]
+Homepage = "https://github.com/jnunnelley/cleantext"
+Repository = "https://github.com/jnunnelley/cleantext"
+Issues = "https://github.com/jnunnelley/cleantext/issues"
+
+[tool.setuptools]
+py-modules = ["cleantext"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-q"
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
